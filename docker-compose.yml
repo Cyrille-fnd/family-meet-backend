@@ -1,0 +1,39 @@
+services:
+  app:
+    container_name: app
+    build:
+      context: ./
+      target: devrunner
+    env_file:
+      - .env
+    volumes:
+      - ./index.ts:/app/index.ts
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      #- ./node_modules:/app/node_modules
+    depends_on:
+      - db
+    ports:
+      - 8080:8080
+
+  db:
+    image: postgres:15.1-alpine
+    volumes:
+      - familymeet_pg_data:/var/lib/postgresql/data:rw
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+
+  adminer:
+    image: adminer
+    depends_on:
+      - db
+    ports:
+      - "10432:8080"
+
+volumes:
+  familymeet_pg_data:
+
