@@ -1,0 +1,41 @@
+name: Deploy back-end
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v1
+
+      - name: Load cache
+        uses: actions/cache@v2
+        with:
+          path: "**/node_modules"
+          key: ${{ runner.os }}-modules
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build App
+        run: yarn build
+
+      - name: Generate deployment package
+        run: zip familymeetbackend.zip -r ./dist/ ./node_modules ./package.json ./.ebextensions ./.npmrc
+
+#      - name: Deploy to EB
+#        uses: einaregilsson/beanstalk-deploy@v13
+#        env:
+#          VERSION_LABEL: monapplication-api-${{ github.run_id }}
+#        with:
+#          aws_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#          aws_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          application_name: family-meet-backend
+#          environment_name: family-meet-backend-env
+#          version_label: ${{ env.VERSION_LABEL }}
+#          region: eu-west-3
+#          deployment_package: familymeetbackend.zip
+#          use_existing_version_if_available: true
